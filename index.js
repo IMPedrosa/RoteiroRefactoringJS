@@ -9,12 +9,15 @@ function gerarFaturaStr (fatura, pecas) {
                             minimumFractionDigits: 2 }).format;
   
     for (let apre of fatura.apresentacoes) {
-      const peca = pecas[apre.id];
       
-      function calcularTotalApresentacao(apre, peca) {
+      function getPeca(apresentacao) {
+        return pecas[apresentacao.id];
+      }
+      
+      function calcularTotalApresentacao(apre) {
         let total = 0;
-  
-        switch (peca.tipo) {
+
+        switch (pecas[apre.id].tipo) {
         case "tragedia":
           total = 40000;
           if (apre.audiencia > 30) {
@@ -29,19 +32,19 @@ function gerarFaturaStr (fatura, pecas) {
           total += 300 * apre.audiencia;
           break;
         default:
-            throw new Error(`Peça desconhecia: ${peca.tipo}`);
+            throw new Error(`Peça desconhecia: ${pecas[apre.id].tipo}`);
         }
         return total;
       }
-      let total = calcularTotalApresentacao(apre, peca);
+      let total = calcularTotalApresentacao(apre);
   
       // créditos para próximas contratações
       creditos += Math.max(apre.audiencia - 30, 0);
-      if (peca.tipo === "comedia") 
+      if (pecas[apre.id].tipo === "comedia") 
          creditos += Math.floor(apre.audiencia / 5);
   
       // mais uma linha da fatura
-      faturaStr += `  ${peca.nome}: ${formato(total/100)} (${apre.audiencia} assentos)\n`;
+      faturaStr += `  ${pecas[apre.id].nome}: ${formato(total/100)} (${apre.audiencia} assentos)\n`;
       totalFatura += total;
     }
     faturaStr += `Valor total: ${formato(totalFatura/100)}\n`;
